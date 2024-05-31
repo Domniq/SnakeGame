@@ -230,7 +230,7 @@ void WaitForKey()
         }
     }
 
-    Thread.Sleep(300);
+    Thread.Sleep(150);
 }
 
 void MoveSnake()
