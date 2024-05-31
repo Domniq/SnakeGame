@@ -21,7 +21,8 @@ Pixel snakeHead = new Pixel
 {
     X = 19,
     Y = 8,
-    Character = 'o'
+    Character = 'o',
+    ConsoleColor = ConsoleColor.Magenta
 };
 
 // Tail
@@ -34,11 +35,20 @@ for (int i = 1; i < startLength + 1; i++)
     {
         X = snakeHead.X - i * 2,
         Y = snakeHead.Y,
-        Character = 'x'
+        Character = 'x',
+        ConsoleColor = ConsoleColor.Blue
     };
 
     snakeTails.Add(snakeTail);
 }
+
+// Food
+Pixel food = new Pixel
+{
+    Character = '*',
+    ConsoleColor = ConsoleColor.DarkYellow
+};
+Random random = new Random();
 
 // Score
 int score = 0;
@@ -46,6 +56,7 @@ int score = 0;
 Console.WindowHeight = 20; // 16 + 4 for score
 Console.WindowWidth = 32;
 
+GenerateFood();
 DrawBoard();
 
 Console.WriteLine("Press enter to start     ");
@@ -61,6 +72,38 @@ while (true)
     WaitForKey();
     MoveSnake();
     CheckCollision();
+    CheckFoodCollision();
+}
+
+void GenerateFood()
+{
+    bool foodGenerated = false;
+
+    while (!foodGenerated)
+    {
+        food.X = random.Next(1, (width - 2) / 2) * 2 + 1; // ensure X is odd
+        food.Y = random.Next(1, height - 2);
+
+        // Check if food is generated inside the head
+        if (food.X == snakeHead.X && food.Y == snakeHead.Y)
+            continue;
+
+        // Check if food is generated inside any tail segment
+        bool insideTail = false;
+
+        foreach (var tail in snakeTails)
+        {
+            if (food.X == tail.X && food.Y == tail.Y)
+            {
+                insideTail = true;
+                break;
+            }
+        }
+        if (insideTail)
+            continue;
+
+        foodGenerated = true;
+    }
 }
 
 void DrawBoard()
@@ -107,15 +150,25 @@ void DrawBoard()
     }
 
     // Head
+    Console.ForegroundColor = snakeHead.ConsoleColor;
     Console.SetCursorPosition(snakeHead.X, snakeHead.Y);
     Console.WriteLine(snakeHead.Character);
+    Console.ResetColor();
 
     // Tail
     foreach (Pixel tail in snakeTails)
     {
         Console.SetCursorPosition(tail.X, tail.Y);
+        Console.ForegroundColor = tail.ConsoleColor;
         Console.Write(tail.Character);
+        Console.ResetColor();
     }
+
+    // Food
+    Console.SetCursorPosition(food.X, food.Y);
+    Console.ForegroundColor = food.ConsoleColor;
+    Console.Write(food.Character);
+    Console.ResetColor();
 
     ShowScore();
 
@@ -218,5 +271,26 @@ void CheckCollision()
     {
         if (snakeHead.X == tail.X && snakeHead.Y == tail.Y)
             gameOver = true;
+    }
+}
+
+void CheckFoodCollision()
+{
+    // Check if head collides with food
+    if (snakeHead.X == food.X && snakeHead.Y == food.Y)
+    {
+        // Add new tail segment
+        Pixel newTail = new Pixel
+        {
+            X = snakeTails[snakeTails.Count - 1].X,
+            Y = snakeTails[snakeTails.Count - 1].Y,
+            Character = 'x'
+        };
+
+        snakeTails.Add(newTail);
+        score++;
+
+        // Generate new food
+        GenerateFood();
     }
 }
