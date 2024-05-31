@@ -209,21 +209,25 @@ void WaitForKey()
         switch (info.Key)
         {
             case ConsoleKey.UpArrow:
+            case ConsoleKey.W:
                 if (_direction != Direction.Bottom)
                     _direction = Direction.Top;
                 break;
 
             case ConsoleKey.DownArrow:
+            case ConsoleKey.S:
                 if (_direction != Direction.Top)
                     _direction = Direction.Bottom;
                 break;
 
             case ConsoleKey.LeftArrow:
+            case ConsoleKey.A:
                 if (_direction != Direction.Right)
                     _direction = Direction.Left;
                 break;
 
             case ConsoleKey.RightArrow:
+            case ConsoleKey.D:
                 if (_direction != Direction.Left)
                     _direction = Direction.Right;
                 break;
